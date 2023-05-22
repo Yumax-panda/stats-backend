@@ -1,6 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from deta import Deta
+import dotenv
+import os
+
+dotenv.load_dotenv()
+deta = Deta(os.getenv("DB_KEY"))
 app = FastAPI()
 
 origins = [
