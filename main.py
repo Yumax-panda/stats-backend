@@ -128,7 +128,7 @@ async def get_results(
         return ResultResponse(data=new_data)
 
 
-@app.get("api/guild/name/{guild_id}")
+@app.get("/api/guild/name/{guild_id}")
 async def get_guild_name(guild_id: int) -> NameResponse:
     """Get the name of a guild.
 
@@ -177,6 +177,12 @@ async def guild_details(request: Request, guild_id: int) -> HTMLResponse:
     db = deta.Base("results")
     response = db.get(str(guild_id))
 
+    name = deta.Base("guild").get("name").get(str(guild_id))
+    if name is None:
+        title = "戦績一覧"
+    else:
+        title = f"{name}の戦績一覧"
+
     if response is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -193,6 +199,7 @@ async def guild_details(request: Request, guild_id: int) -> HTMLResponse:
         return templates.TemplateResponse(
             "guild_details.html",
             context={
+                "title": title,
                 "request": request,
                 "key": str(guild_id),
                 "data": response["data"],
