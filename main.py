@@ -1,9 +1,12 @@
+from typing import TypedDict
+
 from fastapi import (
     FastAPI,
     HTTPException,
     status,
 )
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 from deta import Deta
 import dotenv
@@ -27,13 +30,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+class GamePayload(TypedDict):
+    date: str
+    enemy: str
+    enemyScore: str
+    score: str
+
+class ResultResponse(BaseModel):
+    data: list[GamePayload]
+
+class NameResponse(BaseModel):
+    name: str
+
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
 
 
 @app.get("/guild/results/{guild_id}")
-async def get_results(guild_id: int):
+async def get_results(guild_id: int) -> ResultResponse:
     """Get the game results for a guild.
 
     Parameters
@@ -51,6 +66,7 @@ async def get_results(guild_id: int):
     HTTPException
         If no results are found for the guild.
     """
+
     db = deta.Base("results")
     results = db.get(str(guild_id))
 
@@ -60,11 +76,11 @@ async def get_results(guild_id: int):
             detail="No results found"
         )
     else:
-        return results
+        return ResultResponse(data=results["data"])
 
 
 @app.get("/guild/name/{guild_id}")
-async def get_guild_name(guild_id: int):
+async def get_guild_name(guild_id: int) -> NameResponse:
     """Get the name of a guild.
 
     Parameters
@@ -92,4 +108,4 @@ async def get_guild_name(guild_id: int):
             detail="No guild name found"
         )
     else:
-        return {"name": name}
+        return NameResponse(name=name)
