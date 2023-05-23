@@ -159,7 +159,7 @@ async def get_guild_name(guild_id: int) -> NameResponse:
     else:
         return NameResponse(name=name)
 
-@app.get("/api/guild/details/{guild_id}")
+@app.get("/guild/details/{guild_id}")
 async def guild_details(request: Request, guild_id: int) -> HTMLResponse:
     """Get the details of a guild.
 
