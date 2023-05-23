@@ -36,11 +36,14 @@ class GamePayload(TypedDict):
     enemyScore: str
     score: str
 
+
 class ResultResponse(BaseModel):
     data: list[GamePayload]
 
+
 class NameResponse(BaseModel):
     name: str
+
 
 @app.get("/")
 async def root():
@@ -58,8 +61,7 @@ async def get_results(guild_id: int) -> ResultResponse:
 
     Returns
     -------
-    dict[str, list]
-        The results for the guild.
+    dict[str, list[dict[str, str]]] (list[ResultResponse])
 
     Raises
     ------
@@ -96,7 +98,7 @@ async def get_guild_name(guild_id: int) -> NameResponse:
     Raises
     ------
     HTTPException
-        _description_
+        If no guild name is found.
     """
 
     db = deta.Base("guild")
