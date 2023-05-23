@@ -8,6 +8,7 @@ from fastapi import (
 )
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
@@ -33,6 +34,7 @@ app.add_middleware(
     allow_methods=["POST", "GET"],
     allow_headers=["*"],
 )
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 class GamePayload(TypedDict):
@@ -118,7 +120,7 @@ async def get_guild_name(guild_id: int) -> NameResponse:
         return NameResponse(name=name)
 
 @app.get("/api/guild/details/{guild_id}")
-async def guild_details(request: Request, guild_id: int):
+async def guild_details(request: Request, guild_id: int) -> HTMLResponse:
     """Get the details of a guild.
 
     Parameters
