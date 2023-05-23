@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>サーバーの詳細</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+<body style="background-color: #212121" class="text-light">
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark border-bottom box-shadow mb-3">
+            <div class="container" style="text-align: center; display:flex;">
+                <h3>戦績一覧</h3>
+            </div>
+        </nav>
+    </header>
+
+
+    <div class="container">
+
+        <div role="main" class="pb3">
+
+            <form class = "mb3">
+                <div class="form-row form-group row">
+                    <div class="col">
+                        <label for="teamName">チーム名</label>
+                        <input type="text" class="form-control bg-dark" id="teamName" onChange="updateBoard()">
+                    </div>
+                    <div class="col">
+                        <label for="winOrLose">フィルター</label>
+                        <select class="form-control bg-dark text-light" id="winOrLose" onChange="updateBoard()">
+                            <option value="all">全て</option>
+                            <option value="win">勝利</option>
+                            <option value="lose">敗北</option>
+                            <option value="draw">引き分け</option>
+                        </select>
+                    </div>
+                </div>
+
+                </div>
+            </form>
+
+            <div class="text-center" id="resultTable">
+                <div class="table-responsive">
+                    <table id="resultTable" class="table table-striped table-dark table-sm" style="text-align:center;">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>チーム名</th>
+                                <th>対戦日 (JST)</th>
+                                <th>自チーム - 相手チーム</th>
+                                <th>結果</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultTableBody">
+                            {% for result in data %}
+
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ result.enemy }}</td>
+                                <td>{{ result.date }}</td>
+                                <td>{{ result.score }} - {{ result.enemyScore }}</td>
+
+                                {% set diff = result.score|int - result.enemyScore|int %}
+                                {% if diff > 0 %}
+                                    {% set msg = "Win" + "  (+" + diff|string +")" %}
+                                    <td style="color: red;">{{ msg }}</td>
+                                {% elif diff < 0 %}
+                                    {% set msg = "Lose" + "  (" + diff|string +")"%}
+                                    <td style="color: skyblue;">{{ msg }}</td>
+                                {% else %}
+                                    {% set msg = "Draw" %}
+                                    <td>{{ msg }}</td>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

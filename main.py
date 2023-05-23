@@ -4,8 +4,11 @@ from fastapi import (
     FastAPI,
     HTTPException,
     status,
+    Request
 )
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
 from deta import Deta
@@ -15,6 +18,7 @@ import os
 
 dotenv.load_dotenv()
 deta = Deta(os.getenv("DB_KEY"))
+templates = Jinja2Templates(directory="templates")
 app = FastAPI()
 
 
@@ -51,7 +55,7 @@ async def root():
     return {"message": "Hello World"}
 
 
-@app.get("/guild/results/{guild_id}")
+@app.get("api/guild/results/{guild_id}")
 async def get_results(guild_id: int) -> ResultResponse:
     """Get the game results for a guild.
 
@@ -82,7 +86,7 @@ async def get_results(guild_id: int) -> ResultResponse:
         return ResultResponse(data=results["data"])
 
 
-@app.get("/guild/name/{guild_id}")
+@app.get("api/guild/name/{guild_id}")
 async def get_guild_name(guild_id: int) -> NameResponse:
     """Get the name of a guild.
 
@@ -112,3 +116,36 @@ async def get_guild_name(guild_id: int) -> NameResponse:
         )
     else:
         return NameResponse(name=name)
+
+@app.get("/api/guild/details/{guild_id}")
+async def guild_details(request: Request, guild_id: int):
+    """Get the details of a guild.
+
+    Parameters
+    ----------
+    guild_id : int
+        The ID of the guild to get the details of.
+
+    Returns
+    -------
+    HTMLResponse
+        The details of the guild.
+    """
+
+    db = deta.Base("results")
+    response = db.get(str(guild_id))
+
+    if response is None or not response["data"]:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No results found"
+        )
+    else:
+        return templates.TemplateResponse(
+            "guild_details.html",
+            context={
+                "request": request,
+                "key": str(guild_id),
+                "data": response["data"]
+            }
+        )
