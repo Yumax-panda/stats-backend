@@ -1,0 +1,4 @@
+deta
+gunicorn
+fastapi
+uvicorn[standard]
