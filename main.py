@@ -30,6 +30,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 class GamePayload(TypedDict):
     date: str
     enemy: str
@@ -61,7 +62,7 @@ async def get_results(guild_id: int) -> ResultResponse:
 
     Returns
     -------
-    dict[str, list[dict[str, str]]] (list[ResultResponse])
+    dict[str, list[ResultResponse]
 
     Raises
     ------
@@ -92,7 +93,7 @@ async def get_guild_name(guild_id: int) -> NameResponse:
 
     Returns
     -------
-    dict[str, str]
+    NameResponse
         The name of the guild. ex: {"name": "Guild Name"}
 
     Raises
