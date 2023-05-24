@@ -9,9 +9,10 @@ from fastapi import (
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel
 
+from io import StringIO
 from deta import Deta
 import dotenv
 import os
@@ -53,6 +54,13 @@ class ResultResponse(BaseModel):
 class NameResponse(BaseModel):
     name: str
 
+
+class BookmarkPayload(TypedDict):
+    player_id: int
+    name: str
+
+class BookmarkResponse(BaseModel):
+    data: list[BookmarkPayload]
 
 
 @app.get("/")
@@ -204,4 +212,42 @@ async def guild_details(request: Request, guild_id: int) -> HTMLResponse:
                 "key": str(guild_id),
                 "data": response["data"],
             }
+        )
+
+@app.get("/api/guild/results/file/{guild_id}")
+async def get_results_file(guild_id: int=0):
+    """Get the results of a guild as a file.
+
+    Parameters
+    ----------
+    guild_id : int
+        The ID of the guild to get the results of.
+
+    Returns
+    -------
+    FileResponse
+        The results of the guild as a file.
+    """
+
+    db = deta.Base("results")
+    results = db.get(str(guild_id))
+
+    if results is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No results found"
+        )
+    else:
+        name = deta.Base("guild").get("name").get(str(guild_id))
+        name = name or "unknown"
+        buffer = StringIO()
+
+        for result in results["data"]:
+            content = f'{name},{result["score"]},{result["enemyScore"]},{result["enemy"]},{result["date"]}\n'
+            buffer.write(content)
+        buffer.seek(0)
+        return StreamingResponse(
+            buffer,
+            media_type="text/csv",
+            headers={"Content-Disposition": "attachment; filename=results.csv"}
         )
