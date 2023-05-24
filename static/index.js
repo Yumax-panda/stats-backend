@@ -18,7 +18,6 @@ function refreshTable() {
     }
     var query = queryParams.join("&");
     var url = `/api/guild/results/${guildId}?${query}`;
-    console.log(url);
 
     fetch(url)
         .then(response => response.json())
@@ -27,7 +26,6 @@ function refreshTable() {
 }
 
 function updateTable(data) {
-    console.log(data);
     var newBody = document.createElement('tbody');
     data.forEach(result => {
         var row = document.createElement('tr');
