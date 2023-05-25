@@ -1,0 +1,7 @@
+.filter-group {
+    margin-bottom: 20px;
+}
+
+.table-dark > thead > tr > th{
+    background-color: #0A2D61;
+}
