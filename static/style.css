@@ -5,3 +5,22 @@
 .table-dark > thead > tr > th{
     background-color: #0A2D61;
 }
+
+#guild-name {
+    margin-top: 0;
+    font-size: 40px;
+}
+
+#download {
+    margin-bottom: 10px;
+}
+
+#download > .col  > a{
+    text-decoration: none;
+    color: white;
+}
+
+#download > .col > a > p {
+    margin-top: 20px;
+    font-size: 15px;
+}
