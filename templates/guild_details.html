@@ -1,83 +1,77 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>サーバーの詳細</title>
-    <link rel="icon" href="{{ url_for('static', path='favicon.ico') }}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-</head>
-<body style="background-color: #212121" class="text-light">
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark border-bottom box-shadow mb-3">
-            <div class="container" style="text-align: center; display:flex;">
-                <h3>{{ title }}</h3>
+
+
+{% extends "application.html" %}
+
+{% block body %}
+<div class="container">
+
+    <div role="main" class="pb3">
+
+        <form class = "mb3">
+            <div class="form-row form-group row filter-group">
+                <div class="col">
+                    <label for="teamName">チーム名</label>
+                    <input type="text" class="form-control bg-dark text-light" id="teamName" onChange="refreshTable()">
+                </div>
+                <div class="col">
+                    <label for="winOrLoseOption">フィルター</label>
+                    <select class="form-control bg-dark text-light" id="winOrLoseOption" onChange="refreshTable()">
+                        <option value="all">All</option>
+                        <option value="win">Win</option>
+                        <option value="lose">Lose</option>
+                        <option value="draw">Draw</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label for="guildId">サーバーID</label>
+                    <input type="text" class="form-control bg-dark text-light" id="guildId">
+                </div>
+                <div class="col">
+                    <label for="search">サーバーを検索</label>
+                    <button type="button" class="btn btn-primary form-control" id="search" onclick="redirect()">検索</button>
+                </div>
+
             </div>
-        </nav>
-    </header>
 
+            </div>
+        </form>
 
-    <div class="container">
+        <div class="text-center d-none" id="resultTable">
+            <div class="table-responsive">
+                <table id="resultTable" class="table table-striped table-dark table-sm" style="text-align:center;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>チーム名</th>
+                            <th>対戦日 (JST)</th>
+                            <th>自チーム - 相手チーム</th>
+                            <th>結果</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultTableBody">
+                        {% for result in data %}
 
-        <div role="main" class="pb3">
+                        <tr>
+                            <td>{{ result.idx+1 }}</td>
+                            <td>{{ result.enemy }}</td>
+                            <td>{{ result.date }}</td>
+                            <td>{{ result.score }} - {{ result.enemyScore }}</td>
 
-            <form class = "mb3">
-                <div class="form-row form-group row">
-                    <div class="col">
-                        <label for="teamName">チーム名</label>
-                        <input type="text" class="form-control bg-dark text-light" id="teamName" onChange="refreshTable()">
-                    </div>
-                    <div class="col">
-                        <label for="winOrLoseOption">フィルター</label>
-                        <select class="form-control bg-dark text-light" id="winOrLoseOption" onChange="refreshTable()">
-                            <option value="all">All</option>
-                            <option value="win">Win</option>
-                            <option value="lose">Lose</option>
-                            <option value="draw">Draw</option>
-                        </select>
-                    </div>
-                </div>
-
-                </div>
-            </form>
-
-            <div class="text-center d-none" id="resultTable">
-                <div class="table-responsive">
-                    <table id="resultTable" class="table table-striped table-dark table-sm" style="text-align:center;">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>チーム名</th>
-                                <th>対戦日 (JST)</th>
-                                <th>自チーム - 相手チーム</th>
-                                <th>結果</th>
-                            </tr>
-                        </thead>
-                        <tbody id="resultTableBody">
-                            {% for result in data %}
-
-                            <tr>
-                                <td>{{ result.idx+1 }}</td>
-                                <td>{{ result.enemy }}</td>
-                                <td>{{ result.date }}</td>
-                                <td>{{ result.score }} - {{ result.enemyScore }}</td>
-
-                                {% if result.diff > 0 %}
-                                    {% set msg = "Win" + "  (+" + result.diff|string +")" %}
-                                    <td style="color: red;">{{ msg }}</td>
-                                {% elif result.diff < 0 %}
-                                    {% set msg = "Lose" + "  (" + result.diff|string +")"%}
-                                    <td style="color: skyblue;">{{ msg }}</td>
-                                {% else %}
-                                    {% set msg = "Draw" %}
-                                    <td>{{ msg }}</td>
-                                {% endif %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                            {% if result.diff > 0 %}
+                                {% set msg = "Win" + "  (+" + result.diff|string +")" %}
+                                <td style="color: red;">{{ msg }}</td>
+                            {% elif result.diff < 0 %}
+                                {% set msg = "Lose" + "  (" + result.diff|string +")"%}
+                                <td style="color: skyblue;">{{ msg }}</td>
+                            {% else %}
+                                {% set msg = "Draw" %}
+                                <td>{{ msg }}</td>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
-    <script src="{{ url_for('static', path='index.js') }}"></script>
-</body>
-</html>
+</div>
+{% endblock %}
