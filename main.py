@@ -187,9 +187,9 @@ async def guild_details(request: Request, guild_id: int) -> HTMLResponse:
 
     name = deta.Base("guild").get("name").get(str(guild_id))
     if name is None:
-        title = "戦績一覧"
+        title = "戦績"
     else:
-        title = f"{name}の戦績一覧"
+        title = f"{name}の戦績"
 
     if response is None:
         raise HTTPException(
@@ -213,6 +213,15 @@ async def guild_details(request: Request, guild_id: int) -> HTMLResponse:
                 "data": response["data"],
             }
         )
+
+@app.get("/top")
+async def top_page(request: Request) -> HTMLResponse:
+    return templates.TemplateResponse(
+        "top.html",
+        context={
+            "request": request,
+        }
+    )
 
 @app.get("/api/guild/results/file/{guild_id}")
 async def get_results_file(guild_id: int=0):
