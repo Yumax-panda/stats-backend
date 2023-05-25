@@ -2,4 +2,46 @@
 
 {% block body %}
 
+<div class="container">
+    <div class="text-center">
+        <h1>交流戦 bot Webサービスへようこそ</h1>
+    </div>
+    <p style="text-align:center; margin-top: 20px">このサイトは、交流戦 bot が提供する機能の一部をWebサービスとして提供するものです。</p>
+    <p>現在、以下の機能を提供しています。</p>
+    <ul style="margin-top:20px;">
+        <li>交流戦の結果をCSV形式でダウンロード</li>
+        <li>交流戦の結果を検索</li>
+    </ul>
+    <div class="form-container"> <!-- todo フォームの整形・枠で差別化 -->
+        <div class="text-center" style="margin-top: 50px">
+            <b>早速機能を試してみましょう</b>
+        </div>
+        <div class = "form-group row">
+            <div class="col">
+                <label for="guildId">サーバーID</label>
+                <input type="text" class="form-control bg-dark text-light" id="guildId">
+            </div>
+            <div class="col" style="max-width: 25%;">
+                <label for="search">検索</label>
+                <button type="button" class="btn btn-primary form-control" id="search" onclick="{
+                    var guildId = document.getElementById('guildId').value;
+                    if (!guildId) {
+                        alert('サーバーIDを入力してください。');
+                        return;
+                    }
+                    fetch(`/api/guild/results/${guildId}`)
+                    .then(response => {
+                        if (response.ok) {
+                            window.location.href = `/guild/details/${guildId}`;
+                        }
+                        else {
+                            alert('サーバーが見つかりませんでした。');
+                        }
+                    });
+                }">検索</button>
+        </div>
+
+    </div>
+</div>
+
 {% endblock %}
