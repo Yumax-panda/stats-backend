@@ -6,9 +6,9 @@
     <div class="text-center">
         <h1>交流戦 bot Webサービスへようこそ</h1>
     </div>
-    <p style="text-align:center; margin-top: 20px">このサイトは、交流戦 bot が提供する機能の一部をWebサービスとして提供するものです。</p>
+    <p style="text-align:center; margin-top: 20px; margin-bottom: 20px;">このサイトは、交流戦 bot が提供する機能の一部をWebサービスとして提供するものです。</p>
     <p>現在、以下の機能を提供しています。</p>
-    <ul style="margin-top:20px;">
+    <ul class="lineup">
         <li>交流戦の結果をCSV形式でダウンロード</li>
         <li>交流戦の結果を検索</li>
     </ul>
@@ -45,6 +45,12 @@
 </div>
 
 <style>
+    .lineup {
+        margin-top: 20px;
+    }
+    .lineup > li {
+        margin-bottom: 10px;
+    }
     .form-container {
         border: 1px solid white;
         border-radius: 10px;
