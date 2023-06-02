@@ -1,0 +1,14 @@
+# Spacefile Docs: https://go.deta.dev/docs/spacefile/v0
+v: 0
+micros:
+  - name: backend
+    src: ./
+    engine: python3.9
+    run: uvicorn main:app
+    primary: true
+    presets:
+      env:
+        - name: DB_KEY
+          description: "DB_KEY for deta Base"
+        - name: ORIGIN
+          description: "Origin for API"
