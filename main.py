@@ -50,6 +50,7 @@ class GamePayload(TypedDict):
 
 class ResultResponse(BaseModel):
     data: list[GamePayload]
+    total: int
 
 
 class NameResponse(BaseModel):
@@ -72,6 +73,8 @@ async def root():
 @app.get("/api/guild/results/{guild_id}")
 async def get_results(
     guild_id: int,
+    skip: int = 0,
+    pageSize: int = 50,
     name: Optional[str] = None,
     filter: Literal["win", "lose", "all", "draw"] = "all"
 ) -> ResultResponse:
@@ -81,6 +84,12 @@ async def get_results(
     ----------
     guild_id : int
         The ID of the guild to get the results of.
+    skip : int, optional
+        The number of results to skip, by default 0
+        Non negative integer.
+    pageSize : int, optional
+        The number of results to return, by default 50
+        note: This value should be in the range from 0 to 50.
     name : Optional[str], optional
         The name of the enemy guild to filter by, by default None
     filter : Literal[&quot;win&quot;, &quot;lose&quot;, &quot;all&quot;, &quot;draw&quot;], optional
@@ -89,13 +98,19 @@ async def get_results(
     Returns
     -------
     ResultResponse
-        The results of the guild. ex: {"data": [{"idx": 0, "date": "2021-01-01", "enemy": "Enemy Guild", "enemyScore": "100", "score": "200", "diff": 100}]}
+        The results of the guild. ex: {"data": [{"idx": 0, "date": "2021-01-01", "enemy": "Enemy Guild", "enemyScore": "100", "score": "200", "diff": 100}], "total": 1}
 
     Raises
     ------
     HTTPException
         If no results are found.
     """
+
+    if skip < 0 or pageSize < 0 or pageSize > 50:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid skip or pageSize value"
+        )
 
     db = deta.Base("results")
     results = db.get(str(guild_id))
@@ -134,7 +149,16 @@ async def get_results(
                 "diff": diff
             })
 
-        return ResultResponse(data=new_data)
+        start = skip * pageSize
+        end = start + pageSize
+
+        try:
+            return ResultResponse(data=new_data[start:end], total=len(new_data))
+        except IndexError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"The number of results is only {len(new_data)} but you are trying to skip {skip} results and return {pageSize} results."
+            )
 
 
 @app.get("/api/guild/name/{guild_id}")
