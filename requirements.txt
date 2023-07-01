@@ -1,6 +1,4 @@
 deta
-gunicorn
+Gunicorn
 fastapi
-Jinja2
-uvicorn[standard]
 pydantic
