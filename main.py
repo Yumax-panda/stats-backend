@@ -4,15 +4,10 @@ from fastapi import (
     FastAPI,
     HTTPException,
     status,
-    Request
 )
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, StreamingResponse
-from pydantic import BaseModel
 
-from io import StringIO
+from pydantic import BaseModel
 from deta import Deta
 import dotenv
 import os
@@ -20,12 +15,10 @@ import os
 
 dotenv.load_dotenv()
 deta = Deta(os.getenv("DB_KEY"))
-templates = Jinja2Templates(directory="templates")
 app = FastAPI()
 
 
 origins = [
-    "http://localhost:3000",
     os.environ["ORIGIN"]
 ]
 
@@ -36,7 +29,6 @@ app.add_middleware(
     allow_methods=["GET"],
     allow_headers=["*"],
 )
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 class GamePayload(TypedDict):
@@ -55,19 +47,6 @@ class ResultResponse(BaseModel):
 
 class NameResponse(BaseModel):
     name: str
-
-
-class BookmarkPayload(TypedDict):
-    player_id: int
-    name: str
-
-class BookmarkResponse(BaseModel):
-    data: list[BookmarkPayload]
-
-
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
 
 
 @app.get("/api/guild/results/{guild_id}")
@@ -191,97 +170,3 @@ async def get_guild_name(guild_id: int) -> NameResponse:
         )
     else:
         return NameResponse(name=name)
-
-@app.get("/guild/details/{guild_id}")
-async def guild_details(request: Request, guild_id: int) -> HTMLResponse:
-    """Get the details of a guild.
-
-    Parameters
-    ----------
-    guild_id : int
-        The ID of the guild to get the details of.
-
-    Returns
-    -------
-    HTMLResponse
-        The details of the guild.
-    """
-
-    db = deta.Base("results")
-    response = db.get(str(guild_id))
-
-    name = deta.Base("guild").get("name").get(str(guild_id))
-    if name is None:
-        title = "戦績"
-    else:
-        title = f"{name}の戦績"
-
-    if response is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No results found"
-        )
-    else:
-
-        for idx, data in enumerate(response["data"]):
-            data.update(
-                diff=int(data["score"]) - int(data["enemyScore"]),
-                idx = idx
-            )
-
-        return templates.TemplateResponse(
-            "guild_details.html",
-            context={
-                "title": title,
-                "request": request,
-                "key": str(guild_id),
-                "data": response["data"],
-            }
-        )
-
-@app.get("/top")
-async def top_page(request: Request) -> HTMLResponse:
-    return templates.TemplateResponse(
-        "top.html",
-        context={
-            "request": request,
-        }
-    )
-
-@app.get("/api/guild/results/file/{guild_id}")
-async def get_results_file(guild_id: int=0):
-    """Get the results of a guild as a file.
-
-    Parameters
-    ----------
-    guild_id : int
-        The ID of the guild to get the results of.
-
-    Returns
-    -------
-    FileResponse
-        The results of the guild as a file.
-    """
-
-    db = deta.Base("results")
-    results = db.get(str(guild_id))
-
-    if results is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No results found"
-        )
-    else:
-        name = deta.Base("guild").get("name").get(str(guild_id))
-        name = name or "unknown"
-        buffer = StringIO()
-
-        for result in results["data"]:
-            content = f'{name},{result["score"]},{result["enemyScore"]},{result["enemy"]},{result["date"]}\n'
-            buffer.write(content)
-        buffer.seek(0)
-        return StreamingResponse(
-            buffer,
-            media_type="text/csv",
-            headers={"Content-Disposition": "attachment; filename=results.csv"}
-        )
