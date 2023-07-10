@@ -4,3 +4,4 @@ Gunicorn
 fastapi
 pydantic
 python-dotenv
+typing-extensions
