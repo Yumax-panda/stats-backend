@@ -1,4 +1,5 @@
-from typing import TypedDict, Optional, Literal
+from typing import Optional, Literal
+from typing_extensions import TypedDict
 
 from fastapi import (
     FastAPI,
