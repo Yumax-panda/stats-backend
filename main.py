@@ -124,8 +124,8 @@ async def get_results(
                 "idx": idx,
                 "date": game["date"],
                 "enemy": game["enemy"],
-                "enemyScore": str(game["enemyScore"]),
-                "score": str(game["score"]),
+                "enemyScore": game["enemyScore"],
+                "score": game["score"],
                 "diff": diff
             })
 
