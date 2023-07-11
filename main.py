@@ -44,10 +44,7 @@ class GamePayload(TypedDict):
 class ResultResponse(BaseModel):
     data: list[GamePayload]
     total: int
-
-
-class NameResponse(BaseModel):
-    name: str
+    name: Optional[str]
 
 
 @app.get("/api/guild/results/{guild_id}")
@@ -133,41 +130,13 @@ async def get_results(
         end = start + pageSize
 
         try:
-            return ResultResponse(data=new_data[start:end], total=len(new_data))
+            return ResultResponse(
+                data=new_data[start:end],
+                total=len(new_data),
+                name=deta.Base("guild").get(key="name").get(str(guild_id))
+            )
         except IndexError:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"The number of results is only {len(new_data)} but you are trying to skip {skip} results and return {pageSize} results."
             )
-
-
-@app.get("/api/guild/name/{guild_id}")
-async def get_guild_name(guild_id: int) -> NameResponse:
-    """Get the name of a guild.
-
-    Parameters
-    ----------
-    guild_id : int
-        The ID of the guild to get the name of.
-
-    Returns
-    -------
-    NameResponse
-        The name of the guild. ex: {"name": "Guild Name"}
-
-    Raises
-    ------
-    HTTPException
-        If no guild name is found.
-    """
-
-    db = deta.Base("guild")
-    name_map = db.get(key="name")
-
-    if (name:=name_map.get(str(guild_id))) is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No guild name found"
-        )
-    else:
-        return NameResponse(name=name)
