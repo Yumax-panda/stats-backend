@@ -31,6 +31,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+class TestPayload(TypedDict):
+    message: Literal["test"]
+
 
 class GamePayload(TypedDict):
     idx: int
@@ -45,6 +48,11 @@ class ResultResponse(BaseModel):
     data: list[GamePayload]
     total: int
     name: Optional[str]
+
+
+@app.get("/")
+async def test() -> TestPayload:
+    return {"message": "test"}
 
 
 @app.get("/api/guild/results/{guild_id}")
