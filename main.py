@@ -75,7 +75,7 @@ async def get_results(
     Returns
     -------
     ResultResponse
-        The results of the guild. ex: {"data": [{"idx": 0, "date": "2021-01-01", "enemy": "Enemy Guild", "enemyScore": "100", "score": "200", "diff": 100}], "total": 1}
+        The results of the guild. ex: {"data": [{"idx": 0, "date": "2021-01-01", "enemy": "Enemy Guild", "enemyScore": "100", "score": "200", "diff": 100}], "total": 1, "name": "Guild Name"}
 
     Raises
     ------
