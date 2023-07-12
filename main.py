@@ -27,7 +27,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["GET"],
+    allow_methods=["GET", "HEAD"],
     allow_headers=["*"],
 )
 
@@ -52,6 +52,10 @@ class ResultResponse(BaseModel):
 
 @app.get("/")
 async def test() -> TestPayload:
+    return {"message": "test"}
+
+@app.head("/")
+async def test_head() -> TestPayload:
     return {"message": "test"}
 
 
